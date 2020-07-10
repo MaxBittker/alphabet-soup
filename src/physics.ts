@@ -37,7 +37,7 @@ if (debug) {
 }
 
 let scratchSvg = document.getElementById("scratch");
-const textStyle = `font-size: 18px; alignment-baseline: middle; text-anchor: middle;`;
+const textStyle = `font-size: 38px; alignment-baseline: middle; text-anchor: middle;`;
 function renderedTextSize(string: string) {
   scratchSvg.innerHTML = `<text id="scratchText" style="${textStyle}">${string}</text>`;
   let scratchText = document.getElementById("scratchText");
@@ -80,7 +80,7 @@ function startPhysics(box) {
     });
 
   World.add(engine.world, mouseConstraint);
-  engine.world.gravity.y = 0;
+  // engine.world.gravity.y = 0.1;
 
   // keep the mouse in sync with rendering
   // render.mouse = mouse;
@@ -122,7 +122,7 @@ function startPhysics(box) {
       const degrees = radToDeg(angle);
       const transform = `translate(${position.x}, ${position.y}) rotate(${degrees})`;
       let path = null;
-      path = `<path d="${pathData}" style="${style}"></path>`;
+      // path = `<path d="${pathData}" style="${style}"></path>`;
       return ` <g transform="${transform}" >
         ${path}
         <text style="${textStyle}">${body.label}</text>
@@ -137,11 +137,17 @@ function startPhysics(box) {
   return {
     addWord: (word: string) => {
       let { width, height } = renderedTextSize(word);
-      width += 10;
+      // width += 10;
+      if (word == " ") {
+        width += 30;
+        height += 20;
+        lastBody = undefined;
+        return;
+      }
       height += 5;
       let body = Bodies.rectangle(
-        100 + Math.random() * 100,
-        Math.random() * window.innerHeight - 100,
+        window.innerWidth / 2 + Math.random() * 10,
+        window.innerHeight / 2 + Math.random() * 50,
         width,
         height
       );
@@ -150,17 +156,17 @@ function startPhysics(box) {
       // body.frictionAir = 0.03;
       body.label = word;
       body.torque = Math.random() - 0.5;
-      body.force = { x: 0.01, y: 0.0 };
+      body.force = { x: -0.01, y: 0.0 };
       boxes.push(body);
       console.log(lastBody);
-      if (lastBody) {
+      if (lastBody && word != " ") {
         var constraint = Constraint.create({
           bodyA: body,
           pointA: { x: -body._width / 2, y: -body._height / 2 },
           bodyB: lastBody,
           pointB: { x: lastBody._width / 2, y: -body._height / 2 },
-          stiffness: 0.001,
-          damping: 0.9,
+          stiffness: 0.0001,
+          damping: 0.1,
           length: 3
         });
         var constraint2 = Constraint.create({
