@@ -12,8 +12,9 @@ body {
   top: 0;
   right: 0;
   left: 0;
-  z-index: 555;
+  z-index: 5;
 }
+
 #draw-animation,
 canvas {
   shape-rendering: geometricPrecision;
@@ -64,6 +65,7 @@ h1 {
   position: fixed;
   right: 0;
   bottom: 0;
+  font-size: 12px;
   text-shadow: white 0px 1px;
 }
 
@@ -94,4 +96,9 @@ foreignObject > div {
 
 #scratch {
   visibility: hidden;
+}
+
+#hint {
+  position: absolute;
+  font-size: 200px;
 }

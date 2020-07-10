@@ -37,7 +37,7 @@ if (debug) {
 }
 
 let scratchSvg = document.getElementById("scratch");
-const textStyle = `font-size: 38px; alignment-baseline: middle; text-anchor: middle;`;
+const textStyle = `font-size: 100px; alignment-baseline: middle; text-anchor: middle;`;
 function renderedTextSize(string: string) {
   scratchSvg.innerHTML = `<text id="scratchText" style="${textStyle}">${string}</text>`;
   let scratchText = document.getElementById("scratchText");
@@ -67,6 +67,9 @@ function closestBody(bodies: [], point: Matter.Vector) {
 function startPhysics(box) {
   // add mouse control
   let touch = document.getElementById("touch");
+  if (debug) {
+    touch.style = "z-index:-4";
+  }
   var mouse = Mouse.create(debug ? render.canvas : touch),
     mouseConstraint = MouseConstraint.create(engine, {
       mouse: mouse,
@@ -80,7 +83,7 @@ function startPhysics(box) {
     });
 
   World.add(engine.world, mouseConstraint);
-  // engine.world.gravity.y = 0.1;
+  // engine.world.gravity.y = 0.3;
 
   // keep the mouse in sync with rendering
   // render.mouse = mouse;
@@ -89,20 +92,23 @@ function startPhysics(box) {
 
   let ground = Bodies.rectangle(
     200,
-    window.innerHeight + 40,
+    window.innerHeight + 15,
     window.innerWidth * 3,
-    100,
+    60,
     {
       isStatic: true
     }
   );
+  let ceiling = Bodies.rectangle(200, -25, window.innerWidth * 3, 50, {
+    isStatic: true
+  });
   let leftWall = Bodies.rectangle(-50, 200, 100, 4000, { isStatic: true });
   let rightWall = Bodies.rectangle(window.innerWidth + 50, 200, 100, 4000, {
     isStatic: true
   });
 
   // add all of the bodies to the world
-  World.add(engine.world, [ground, leftWall, rightWall]);
+  World.add(engine.world, [ground, ceiling, leftWall, rightWall]);
   //   World.add(engine.world, [ground, leftWall, rightWall]); //, leftRamp, rightRamp]);
 
   // run the engine
@@ -125,7 +131,7 @@ function startPhysics(box) {
       // path = `<path d="${pathData}" style="${style}"></path>`;
       return ` <g transform="${transform}" >
         ${path}
-        <text style="${textStyle}">${body.label}</text>
+        <text style="${textStyle}" id>${body.label}</text>
       </g>`;
     });
 
@@ -138,46 +144,54 @@ function startPhysics(box) {
     addWord: (word: string) => {
       let { width, height } = renderedTextSize(word);
       // width += 10;
-      if (word == " ") {
+      if (word.length < 1 || word == " ") {
         width += 30;
         height += 20;
         lastBody = undefined;
         return;
       }
-      height += 5;
-      let body = Bodies.rectangle(
-        window.innerWidth / 2 + Math.random() * 10,
-        window.innerHeight / 2 + Math.random() * 50,
-        width,
-        height
-      );
+      height *= 0.7;
+
+      let pos = {
+        x: window.innerWidth / 4 + Math.random() * 0,
+        y: window.innerHeight / 2 + Math.random() * 0
+      };
+      if (lastBody) {
+        pos = Vector.clone(lastBody.vertices[1]);
+        pos.y += height / 2;
+      }
+      let body = Bodies.rectangle(pos.x, pos.y, width, height);
       body._width = width;
       body._height = height;
       // body.frictionAir = 0.03;
       body.label = word;
       body.torque = Math.random() - 0.5;
-      body.force = { x: -0.01, y: 0.0 };
+      body.force = { x: -0.1, y: (Math.random() - 0.5) * 0.1 };
       boxes.push(body);
-      console.log(lastBody);
       if (lastBody && word != " ") {
         var constraint = Constraint.create({
           bodyA: body,
           pointA: { x: -body._width / 2, y: -body._height / 2 },
           bodyB: lastBody,
-          pointB: { x: lastBody._width / 2, y: -body._height / 2 },
-          stiffness: 0.0001,
-          damping: 0.1,
-          length: 3
+          pointB: Vector.sub(lastBody.vertices[1], lastBody.position),
+          // pointB: { x: lastBody._width / 2, y: -body._height / 2 },
+          stiffness: 0.002,
+          damping: 0.9,
+          length: 5
         });
+        // lastBody.angle = 0;
+        // debugger;
         var constraint2 = Constraint.create({
           bodyA: body,
           pointA: { x: -body._width / 2, y: body._height / 2 },
           bodyB: lastBody,
-          pointB: { x: lastBody._width / 2, y: body._height / 2 },
-          stiffness: 0.01,
-          damping: 0.1,
+          pointB: Vector.sub(lastBody.vertices[2], lastBody.position),
+          stiffness: 0.002,
+          damping: 0.9,
           length: 5
         });
+        body.c1 = constraint;
+        body.c2 = constraint2;
         World.add(engine.world, [body, constraint, constraint2]);
       } else {
         World.add(engine.world, [body]);
@@ -187,17 +201,22 @@ function startPhysics(box) {
       return body;
     },
     removeWord: () => {
-      let box = closestBody(boxes, { x: 175, y: 350 * 1.25 });
-      if (!box) return;
+      lastBody = undefined;
+      let box = boxes[boxes.length - 1];
+      if (!box || !box._width) return;
       //   box.isSleeping = false;
       Matter.Body.setVelocity(box, { x: 0, y: -5 });
       box.pulse = true;
       //   console.log("a");
-      window.setTimeout(() => {
-        // console.log("c");
-        World.remove(engine.world, box);
-        boxes = boxes.filter(b => b != box);
-      }, 200);
+      // window.setTimeout(() => {
+      // console.log("c");
+      World.remove(engine.world, box);
+
+      boxes = boxes.filter(b => b != box);
+      if (box.c1) {
+        World.remove(engine.world, [box.c1, box.c2]);
+      }
+      // }, 100);
 
       return box.label;
     }

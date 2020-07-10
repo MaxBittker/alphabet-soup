@@ -19,7 +19,10 @@ let words = text.split(/(\s+)/).filter(w => w.trim().length > 0);
 let box = document.getElementById("draw-animation");
 let { addWord, removeWord } = startPhysics(box);
 
-// words.slice(0, 500).map(addWord);
+addWord("type");
+addWord(" ");
+
+// words.slice(0, 10).map(addWord);
 window.addEventListener("keypress", (ev: KeyboardEvent) => {
   let str = ev.key;
   if (ev.key == "Enter") {
@@ -29,14 +32,26 @@ window.addEventListener("keypress", (ev: KeyboardEvent) => {
 });
 
 window.addEventListener("keydown", (ev: KeyboardEvent) => {
-  console.log(ev.keyCode);
   if (ev.keyCode === 8 || ev.keyCode == 46) {
     let selection = window.getSelection();
-    console.log(selection);
+    // console.log(selection);
     let words = Array.from(document.querySelectorAll("text"));
-    console.log(words);
+    // console.log(words);
     words = words.filter(t => selection.containsNode(t));
-    console.log(words);
+    console.log(words.length);
+    words.forEach(removeWord);
+    removeWord();
+
+    if (window.getSelection) {
+      if (window.getSelection().empty) {
+        // Chrome
+        window.getSelection().empty();
+      } else if (window.getSelection().removeAllRanges) {
+        // Firefox
+        window.getSelection().removeAllRanges();
+      }
+    }
+    // console.log(words);
   }
 });
 
