@@ -37,7 +37,7 @@ if (debug) {
 }
 
 let scratchSvg = document.getElementById("scratch");
-const textStyle = `font-size: 100px; alignment-baseline: middle; text-anchor: middle;`;
+const textStyle = `font-size: 80px; alignment-baseline: middle; text-anchor: middle;`;
 function renderedTextSize(string: string) {
   scratchSvg.innerHTML = `<text id="scratchText" style="${textStyle}">${string}</text>`;
   let scratchText = document.getElementById("scratchText");
