@@ -19,11 +19,6 @@ let words = text.split(/(\s+)/).filter(w => w.trim().length > 0);
 let box = document.getElementById("draw-animation");
 let { addWord, removeWord } = startPhysics(box);
 
-addWord("Kinematic");
-addWord(" ");
-addWord("Typewriter");
-addWord(" ");
-
 // words.slice(0, 10).map(addWord);
 window.addEventListener("keypress", (ev: KeyboardEvent) => {
   let str = ev.key;
@@ -79,11 +74,18 @@ function mobileCheck() {
   return check;
 }
 if (mobileCheck()) {
-  addWord("(works");
+  addWord("(");
+  addWord("works");
   addWord("better");
   addWord("with");
   addWord("a");
-  addWord("keyboard)");
+  addWord("keyboard");
+  addWord(")");
+} else {
+  addWord("Kinematic");
+  addWord(" ");
+  addWord("Typewriter");
+  addWord(" ");
 }
 
 let destinationWords: Array<string> = [];
