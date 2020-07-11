@@ -78,6 +78,8 @@ if (mobileCheck()) {
   addWord("works");
   addWord("better");
   addWord("with");
+  addWord(" ");
+
   addWord("a");
   addWord("keyboard");
   addWord(")");
