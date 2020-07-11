@@ -154,7 +154,7 @@ function startPhysics(box) {
 
       let pos = {
         x: window.innerWidth / 4 + Math.random() * 0,
-        y: window.innerHeight / 2 + Math.random() * 0
+        y: window.innerHeight * 0.1 + Math.random() * 0
       };
       if (lastBody) {
         pos = Vector.clone(lastBody.vertices[1]);
