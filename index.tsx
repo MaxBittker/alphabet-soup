@@ -73,21 +73,26 @@ function mobileCheck() {
   })(navigator.userAgent || navigator.vendor || window.opera);
   return check;
 }
-if (mobileCheck()) {
-  addWord("(");
-  addWord("works");
-  addWord("better");
-  addWord("with");
-  addWord(" ");
 
-  addWord("a");
-  addWord("keyboard");
-  addWord(")");
-} else {
-  addWord("Kinematic");
-  addWord(" ");
-  addWord("Typewriter");
-  addWord(" ");
-}
+addWord("a");
+addWord("b");
+addWord("c");
+
+// if (mobileCheck()) {
+//   addWord("(");
+//   addWord("works");
+//   addWord("better");
+//   addWord("with");
+//   addWord(" ");
+
+//   addWord("a");
+//   addWord("keyboard");
+//   addWord(")");
+// } else {
+//   addWord("Kinematic");
+//   addWord(" ");
+//   addWord("Typewriter");
+//   addWord(" ");
+// }
 
 let destinationWords: Array<string> = [];

@@ -8,6 +8,7 @@ let Engine = Matter.Engine,
   Vector = Matter.Vector,
   Bodies = Matter.Bodies,
   Render = Matter.Render,
+  Query = Matter.Query,
   Constraint = Matter.Constraint,
   MouseConstraint = Matter.MouseConstraint,
   Mouse = Matter.Mouse;
@@ -83,7 +84,7 @@ function startPhysics(box) {
     });
 
   World.add(engine.world, mouseConstraint);
-  // engine.world.gravity.y = 0.3;
+  engine.world.gravity.y = 0.0;
 
   // keep the mouse in sync with rendering
   // render.mouse = mouse;
@@ -115,6 +116,52 @@ function startPhysics(box) {
   Engine.run(engine);
 
   let radToDeg = r => r * (180 / Math.PI);
+  let degToRad = d => d * (Math.PI / 180);
+
+  const velocityDecay = 0.2;
+
+  Matter.Events.on(engine, "beforeUpdate", () => {
+    Matter.Composite.allBodies(engine.world).forEach(body => {
+      const { position } = body;
+      let r = 100;
+      let bound = Matter.Bounds.create([
+        Matter.Vector.sub(body.position, { x: r, y: r }),
+        Matter.Vector.add(body.position, { x: r, y: r })
+      ]);
+      let neighbors = Query.region(boxes, bound);
+      // console.log(neighbors.length);
+      // body._dvx = 0;
+      // body._dvy = 0;
+      neighbors.forEach(neighbor => {
+        const delta = Matter.Vector.sub(neighbor.position, position);
+
+        const distance2 = Matter.Vector.magnitudeSquared(delta);
+        if (distance2 == 0) {
+          return;
+        }
+
+        let intensity = 1 / distance2;
+        // debugger;
+        intensity *= 0.5;
+        Matter.Body.applyForce(
+          body,
+          position,
+          Matter.Vector.mult(delta, intensity)
+        );
+
+        // body._dvx += ((body._vx || 0) + distance.x) * velocityDecay;
+        // body._dvy += ((body._vY || 0) + distance.y) * velocityDecay;
+      });
+      // Matter.Body.applyForce()
+      // setVelocity(body, {
+      // x: body._dvx,
+      // y: body._dvy
+      // });
+      // let angle = radToDeg(body.angle);
+      // Matter.Body.setAngle(body, degToRad(angle));
+    });
+  });
+
   Matter.Events.on(engine, "afterUpdate", () => {
     const paths = boxes.map((body, index) => {
       // const paths = engine.world.bodies.map((body, index) => {
@@ -163,7 +210,7 @@ function startPhysics(box) {
       let body = Bodies.rectangle(pos.x, pos.y, width, height);
       body._width = width;
       body._height = height;
-      // body.frictionAir = 0.03;
+      body.frictionAir = 0.03;
       body.label = word;
       body.torque = Math.random() - 0.5;
       body.force = { x: -0.1, y: (Math.random() - 0.5) * 0.1 };
@@ -192,7 +239,9 @@ function startPhysics(box) {
         });
         body.c1 = constraint;
         body.c2 = constraint2;
-        World.add(engine.world, [body, constraint, constraint2]);
+        World.add(engine.world, [body]);
+
+        // World.add(engine.world, [body, constraint, constraint2]);
       } else {
         World.add(engine.world, [body]);
       }
