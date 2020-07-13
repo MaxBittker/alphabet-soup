@@ -9,12 +9,6 @@ let height = window.innerHeight;
 window.width = width;
 window.height = height;
 
-let text = `Motion is a state, which indicates change of position. Surprisingly, everything in this world is constantly
-moving and nothing is stationary. The apparent state of rest, as we shall learn, is a notional experience
-conned to a particular system of reference. A building, for example, is at rest in Earth's reference, but it
-is a moving body for other moving systems like train, motor, airplane, moon, sun etc.`;
-let words = text.split(/(\s+)/).filter(w => w.trim().length > 0);
-
 // let connections = [c1, c2];
 let box = document.getElementById("draw-animation");
 let { addWord, removeWord } = startPhysics(box);
@@ -52,12 +46,6 @@ window.addEventListener("keydown", (ev: KeyboardEvent) => {
   }
 });
 
-function formatWords(words: Array<string>) {
-  return `<p class="word-bank">${words
-    .map(w => `<span class="word-span">${w}</span>&nbsp;`)
-    .join(" ")}</p>`;
-}
-
 function mobileCheck() {
   let check = false;
   (function(a) {
@@ -74,9 +62,20 @@ function mobileCheck() {
   return check;
 }
 
-addWord("a");
-addWord("b");
-addWord("c");
+let start = "Alphabet Soup".split("");
+
+function seed() {
+  let a = start.shift();
+
+  if (a != undefined) {
+    addWord(a);
+    setTimeout(seed, 500);
+  }
+}
+seed();
+// addWord("a");
+// addWord("b");
+// addWord("c");
 
 // if (mobileCheck()) {
 //   addWord("(");

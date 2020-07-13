@@ -28,7 +28,7 @@
   },
   "scripts": {
     "start": "parcel develop index.html",
-    "build": "parcel build index.html  -d docs --public-url /kinematic-typewriter/"
+    "build": "parcel build index.html  -d docs --public-url /alphabet-soup/"
   },
   "repository": {
     "type": "git",

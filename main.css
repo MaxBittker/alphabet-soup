@@ -1,9 +1,15 @@
 body {
   font-family: "Libre Franklin", sans-serif;
   background-size: 40px 40px;
-  background-image: radial-gradient(circle, #999 1px, rgba(0, 0, 0, 0) 1px);
+  background-image: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 0) 1px,
+    #f6a04d 3px,
+    rgba(0, 0, 0, 0) 2px
+  );
   height: 100%;
   overflow: hidden;
+  /* background-color: #f2cdcf; */
 }
 #touch {
   /* background-color: rgba(200, 0, 200, 0.05); */
@@ -31,7 +37,7 @@ canvas {
 }
 
 text {
-  fill: black;
+  fill: #333;
   font-size: 20px;
 }
 svg {

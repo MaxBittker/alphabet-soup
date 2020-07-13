@@ -1,5 +1,7 @@
 import * as Matter from "matter-js";
 import { render } from "react-dom";
+import bigrams from "./bigrams";
+console.log(bigrams);
 let debug = false;
 // debug = true;
 // module aliases
@@ -45,7 +47,7 @@ function renderedTextSize(string: string) {
   var bBox = scratchText.getBBox();
   return {
     width: bBox.width,
-    height: bBox.height
+    height: bBox.height * 0.8
   };
 }
 function closestBody(bodies: [], point: Matter.Vector) {
@@ -76,7 +78,7 @@ function startPhysics(box) {
       mouse: mouse,
       constraint: {
         // allow bodies on mouse to rotate
-        angularStiffness: 0,
+        angularStiffness: 0.5,
         render: {
           visible: false
         }
@@ -93,18 +95,18 @@ function startPhysics(box) {
 
   let ground = Bodies.rectangle(
     200,
-    window.innerHeight + 15,
+    window.innerHeight + 95,
     window.innerWidth * 3,
-    60,
+    200,
     {
       isStatic: true
     }
   );
-  let ceiling = Bodies.rectangle(200, -25, window.innerWidth * 3, 50, {
+  let ceiling = Bodies.rectangle(200, -95, window.innerWidth * 3, 200, {
     isStatic: true
   });
-  let leftWall = Bodies.rectangle(-50, 200, 100, 4000, { isStatic: true });
-  let rightWall = Bodies.rectangle(window.innerWidth + 50, 200, 100, 4000, {
+  let leftWall = Bodies.rectangle(-95, 200, 200, 4000, { isStatic: true });
+  let rightWall = Bodies.rectangle(window.innerWidth + 95, 200, 200, 4000, {
     isStatic: true
   });
 
@@ -118,12 +120,10 @@ function startPhysics(box) {
   let radToDeg = r => r * (180 / Math.PI);
   let degToRad = d => d * (Math.PI / 180);
 
-  const velocityDecay = 0.2;
-
   Matter.Events.on(engine, "beforeUpdate", () => {
-    Matter.Composite.allBodies(engine.world).forEach(body => {
+    boxes.forEach(body => {
       const { position } = body;
-      let r = 100;
+      let r = 50;
       let bound = Matter.Bounds.create([
         Matter.Vector.sub(body.position, { x: r, y: r }),
         Matter.Vector.add(body.position, { x: r, y: r })
@@ -133,21 +133,58 @@ function startPhysics(box) {
       // body._dvx = 0;
       // body._dvy = 0;
       neighbors.forEach(neighbor => {
-        const delta = Matter.Vector.sub(neighbor.position, position);
-
+        const delta = Matter.Vector.sub(body.position, neighbor.position);
         const distance2 = Matter.Vector.magnitudeSquared(delta);
+
         if (distance2 == 0) {
           return;
         }
 
-        let intensity = 1 / distance2;
+        let a = body.label.toUpperCase();
+        let b = neighbor.label.toUpperCase();
+        let bigram = a + b;
+        let affinity = 1.0;
+        if (bigrams[bigram] != undefined) {
+          affinity = bigrams[bigram] / 100;
+        }
+        // console.log(affinity);
+
+        // console.log(affinity);
+        function attract(p1, p2, repel = 1) {
+          const delta = Matter.Vector.sub(p2, p1);
+          const distance2 = Matter.Vector.magnitudeSquared(delta);
+
+          let intensity = 1 / distance2;
+          intensity *= 0.03;
+          intensity *= affinity;
+          intensity = Math.min(intensity, 0.0005);
+          intensity = Math.max(intensity, -0.0005);
+          intensity *= repel;
+          Matter.Body.applyForce(
+            body,
+            p2,
+            Matter.Vector.mult(delta, intensity)
+          );
+        }
         // debugger;
-        intensity *= 0.5;
-        Matter.Body.applyForce(
-          body,
-          position,
-          Matter.Vector.mult(delta, intensity)
-        );
+        // attract(body.position, neighbor.position);
+
+        attract(body.vertices[0], neighbor.vertices[1]);
+        attract(body.vertices[3], neighbor.vertices[2]);
+        attract(body.vertices[1], neighbor.vertices[0]);
+        attract(body.vertices[2], neighbor.vertices[3]);
+
+        attract(body.vertices[0], neighbor.vertices[0], -0.5);
+        attract(body.vertices[0], neighbor.vertices[3], -0.5);
+
+        attract(body.vertices[1], neighbor.vertices[1], -0.5);
+        attract(body.vertices[1], neighbor.vertices[2], -0.5);
+
+        attract(body.vertices[2], neighbor.vertices[2], -0.5);
+        attract(body.vertices[2], neighbor.vertices[1], -0.5);
+
+        attract(body.vertices[3], neighbor.vertices[3], -0.5);
+        attract(body.vertices[3], neighbor.vertices[0], -0.5);
 
         // body._dvx += ((body._vx || 0) + distance.x) * velocityDecay;
         // body._dvy += ((body._vY || 0) + distance.y) * velocityDecay;
@@ -197,23 +234,24 @@ function startPhysics(box) {
         lastBody = undefined;
         return;
       }
-      height *= 0.7;
+      height *= 0.9;
 
       let pos = {
-        x: window.innerWidth / 4 + Math.random() * 0,
-        y: window.innerHeight * 0.1 + Math.random() * 0
+        x: window.innerWidth / 4 + (Math.random() * window.innerWidth) / 2,
+        y: window.innerHeight * 0.2 + (Math.random() * window.innerHeight) / 8
       };
-      if (lastBody) {
+      if (lastBody && lastBody.position.x < window.innerWidth - 50) {
         pos = Vector.clone(lastBody.vertices[1]);
         pos.y += height / 2;
+        pos.x += 60;
       }
       let body = Bodies.rectangle(pos.x, pos.y, width, height);
       body._width = width;
       body._height = height;
-      body.frictionAir = 0.03;
+      body.frictionAir = 0.05;
       body.label = word;
       body.torque = Math.random() - 0.5;
-      body.force = { x: -0.1, y: (Math.random() - 0.5) * 0.1 };
+      body.force = { x: -0.05, y: (Math.random() - 0.5) * 0.1 };
       boxes.push(body);
       if (lastBody && word != " ") {
         var constraint = Constraint.create({
