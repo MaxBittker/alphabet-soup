@@ -263,7 +263,8 @@ function startPhysics(box) {
       let body = Bodies.rectangle(pos.x, pos.y, width, height);
       body._width = width;
       body._height = height;
-      body.frictionAir = 0.05;
+      body.friction = 0.9;
+      body.frictionAir = 0.025;
       body.label = word;
       body.torque = Math.random() - 0.5;
       body.force = { x: -0.05, y: (Math.random() - 0.5) * 0.1 };
