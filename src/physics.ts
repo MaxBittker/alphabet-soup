@@ -145,6 +145,7 @@ function startPhysics(box) {
         let bigram = a + b;
 
         //TODO arrange letters
+
         let affinity = 1.0;
         if (bigrams[bigram] != undefined) {
           affinity = bigrams[bigram] / 100;
