@@ -143,6 +143,8 @@ function startPhysics(box) {
         let a = body.label.toUpperCase();
         let b = neighbor.label.toUpperCase();
         let bigram = a + b;
+
+        //TODO arrange letters
         let affinity = 1.0;
         if (bigrams[bigram] != undefined) {
           affinity = bigrams[bigram] / 100;
