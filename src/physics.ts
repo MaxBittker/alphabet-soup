@@ -40,14 +40,14 @@ if (debug) {
 }
 
 let scratchSvg = document.getElementById("scratch");
-const textStyle = `font-size: 80px; alignment-baseline: middle; text-anchor: middle;`;
+const textStyle = `font-size: 5.5em; alignment-baseline: middle; text-anchor: middle;`;
 function renderedTextSize(string: string) {
   scratchSvg.innerHTML = `<text id="scratchText" style="${textStyle}">${string}</text>`;
   let scratchText = document.getElementById("scratchText");
   var bBox = scratchText.getBBox();
   return {
     width: bBox.width,
-    height: bBox.height * 0.8
+    height: bBox.height * 0.9
   };
 }
 function closestBody(bodies: [], point: Matter.Vector) {
@@ -143,6 +143,18 @@ function startPhysics(box) {
         let a = body.label.toUpperCase();
         let b = neighbor.label.toUpperCase();
         let bigram = a + b;
+
+        if (
+          Matter.Vector.magnitudeSquared(
+            Matter.Vector.sub(body.vertices[0], neighbor.position)
+          ) <
+          Matter.Vector.magnitudeSquared(
+            Matter.Vector.sub(body.vertices[1], neighbor.position)
+          )
+        ) {
+          bigram = b + a;
+        }
+        // console.log(bigram);
 
         //TODO arrange letters
 
