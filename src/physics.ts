@@ -47,7 +47,7 @@ function renderedTextSize(string: string) {
   var bBox = scratchText.getBBox();
   return {
     width: bBox.width,
-    height: bBox.height * 0.9
+    height: bBox.height * 0.8
   };
 }
 function closestBody(bodies: [], point: Matter.Vector) {
@@ -123,7 +123,7 @@ function startPhysics(box) {
   Matter.Events.on(engine, "beforeUpdate", () => {
     boxes.forEach(body => {
       const { position } = body;
-      let r = 50;
+      let r = 120;
       let bound = Matter.Bounds.create([
         Matter.Vector.sub(body.position, { x: r, y: r }),
         Matter.Vector.add(body.position, { x: r, y: r })
@@ -189,17 +189,17 @@ function startPhysics(box) {
         attract(body.vertices[1], neighbor.vertices[0]);
         attract(body.vertices[2], neighbor.vertices[3]);
 
-        attract(body.vertices[0], neighbor.vertices[0], -0.5);
-        attract(body.vertices[0], neighbor.vertices[3], -0.5);
+        attract(body.vertices[0], neighbor.vertices[0], -0.25);
+        attract(body.vertices[0], neighbor.vertices[3], -0.25);
 
-        attract(body.vertices[1], neighbor.vertices[1], -0.5);
-        attract(body.vertices[1], neighbor.vertices[2], -0.5);
+        attract(body.vertices[1], neighbor.vertices[1], -0.25);
+        attract(body.vertices[1], neighbor.vertices[2], -0.25);
 
-        attract(body.vertices[2], neighbor.vertices[2], -0.5);
-        attract(body.vertices[2], neighbor.vertices[1], -0.5);
+        attract(body.vertices[2], neighbor.vertices[2], -0.25);
+        attract(body.vertices[2], neighbor.vertices[1], -0.25);
 
-        attract(body.vertices[3], neighbor.vertices[3], -0.5);
-        attract(body.vertices[3], neighbor.vertices[0], -0.5);
+        attract(body.vertices[3], neighbor.vertices[3], -0.25);
+        attract(body.vertices[3], neighbor.vertices[0], -0.25);
 
         // body._dvx += ((body._vx || 0) + distance.x) * velocityDecay;
         // body._dvy += ((body._vY || 0) + distance.y) * velocityDecay;
@@ -230,7 +230,7 @@ function startPhysics(box) {
       // path = `<path d="${pathData}" style="${style}"></path>`;
       return ` <g transform="${transform}" >
         ${path}
-        <text style="${textStyle}" id>${body.label}</text>
+        <text style="${textStyle}" dy="-0.20em">${body.label}</text>
       </g>`;
     });
 
